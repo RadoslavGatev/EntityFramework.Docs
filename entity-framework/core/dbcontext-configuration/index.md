@@ -449,17 +449,7 @@ public class ApplicationDbContext : DbContext
 - Better performance for applications that create many `DbContext` instances
 - Lower memory overhead when multiple contexts share configurations
 
-**When to disable caching**: You might want to disable service provider caching (`false`) for testing environments to ensure each test gets a fresh service provider when `DbContext` configurations change test-to-test.
-
-```csharp
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddDbContext<ApplicationDbContext>(options =>
-        options
-            .UseSqlServer(connectionString)
-            .EnableServiceProviderCaching(true)); // Default, but shown for clarity
-}
-```
+**When to disable caching**: Disabling service provider caching will greatly slow down `DbContext` creation and in the vast majority of cases the default behavior is recommended. If there are issues with incorrect internal services used, then they should be fixed in a different way. But if you are replacing services for testing purposes you could disable service provider caching (`false`) to ensure each test gets a fresh service provider.
 
 ## Memory Cache Integration
 
@@ -470,10 +460,7 @@ EF Core automatically configures `IMemoryCache` with a default size limit of 102
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddMemoryCache(options =>
-    {
-        options.SizeLimit = 20480; // Custom size limit for EF Core caching
-    });
+    services.AddMemoryCache(options => options.SizeLimit = 20480); // Custom size limit for EF Core caching
     
     services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
